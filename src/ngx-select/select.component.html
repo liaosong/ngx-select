@@ -1,1 +1,11 @@
-<h1>test</h1>
+<div class="nb-select-container" (click)="containerClicked($event)">
+    <div>
+        <input type="text" class="select-input"
+               (input)="onInput($event)"
+               (focus)="inputFocus(input)" [(ngModel)]="text" #input>
+        <i class="caret" (click)="input.focus()"></i>
+    </div>
+    <div class="nb-option-container" *ngIf="isOpen">
+        <ng-content></ng-content>
+    </div>
+</div>

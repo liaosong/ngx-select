@@ -1,16 +1,24 @@
-import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {NbSelectComponent} from './select.component';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NbSelectComponent } from './select.component';
+import { FormsModule } from '@angular/forms';
+import { SelectOptionComponent } from './select-option/select-option.component';
+import { SelectFilterPipe } from './select.pipe';
 
 @NgModule({
     imports: [
-        CommonModule
+        CommonModule,
+        FormsModule,
     ],
     declarations: [
-        NbSelectComponent
+        NbSelectComponent,
+        SelectOptionComponent,
+        SelectFilterPipe,
     ],
     exports: [
-        NbSelectComponent
+        NbSelectComponent,
+        SelectOptionComponent,
+        SelectFilterPipe,
     ]
 })
 export class SelectModule {

@@ -1,0 +1,10 @@
+.option-item {
+    border: 1px solid #fff;
+    padding: 5px 10px;
+
+    &:hover{
+        background-color: #f2f9fc;
+        color: #666;
+        border: 1px solid #cde8f3;
+    }
+}

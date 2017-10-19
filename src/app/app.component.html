@@ -1,1 +1,6 @@
-<nb-select></nb-select>
+<div style="width: 240px;font-size: 14px;">
+    <nb-select #select [(ngModel)]="selected">
+         <select-option [text]="item" *ngFor="let item of items | selectFilter:select.getFilterString()">{{item}}</select-option>
+    </nb-select>
+</div>
+
