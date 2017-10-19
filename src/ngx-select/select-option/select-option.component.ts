@@ -1,7 +1,7 @@
 import {
-    ChangeDetectionStrategy, Component, EventEmitter, HostBinding, HostListener, Input, NgZone, OnInit,
+    ChangeDetectionStrategy, Component, EventEmitter, HostBinding, HostListener, Input, OnInit,
     Output
-} from '@angular/core';
+} from '@angular/core'
 
 @Component({
     selector: 'select-option',
@@ -13,27 +13,27 @@ import {
 export class SelectOptionComponent implements OnInit {
     @Output() select$ = new EventEmitter<SelectOptionComponent>()
     @Input() text: string
-    @Input() value: any;
+    @Input() value: any
     constructor() {
     }
 
-    @HostBinding('class.active') isActive = false;
+    @HostBinding('class.active') isActive = false
 
 
     @HostListener('click')
     optionClicked() {
-        this.select$.emit(this);
-        this.isActive = true;
+        this.select$.emit(this)
+        this.isActive = true
     }
 
     ngOnInit() {
     }
 
     getSelect$() {
-        return this.select$;
+        return this.select$
     }
 
     setActive() {
-        this.isActive = true;
+        this.isActive = true
     }
 }
