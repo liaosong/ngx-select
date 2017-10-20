@@ -1,5 +1,5 @@
 import {
-    AfterViewInit, Component, ContentChildren, Inject, OnDestroy, Optional,
+    AfterViewInit, Component, ContentChildren, EventEmitter, Inject, OnDestroy, Optional, Output,
     QueryList
 } from '@angular/core'
 import { SelectOptionComponent } from './select-option/select-option.component'
@@ -19,6 +19,8 @@ function isUndefined(value) {
 export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
     public isOpen = false
     public text = ''
+    @ContentChildren(SelectOptionComponent) selectOptions: QueryList<SelectOptionComponent>
+    @Output() change = new EventEmitter()
     private subscriptions: Subscription[] = []
     private handler: Function
     private actived: SelectOptionComponent
@@ -26,7 +28,6 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
         on: false,
         text: ''
     }
-    @ContentChildren(SelectOptionComponent) selectOptions: QueryList<SelectOptionComponent>
     constructor(
         @Inject(DOCUMENT) private document: any,
         @Optional() public _control: NgControl,
@@ -56,6 +57,7 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
         if (this.selectOptions && this.selectOptions.length > 0) {
             const actived = this.selectOptions.find((item) => {
                 const selectValue = isUndefined(item.value) ? item.text : item.value
+
                 return selectValue === value
             })
             if (actived) {
@@ -114,6 +116,11 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
         }
     }
 
+    private preChange(value) {
+        this.onChange(value)
+        this.change.emit(value)
+    }
+
     private addDocumentClick() {
         const self = this
         this.handler = () => {
@@ -139,7 +146,7 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
                 this.actived = selected
                 this.text = selected.text
                 const value = isUndefined(selected.value) ? selected.text : selected.value
-                this.onChange(value)
+                this.preChange(value)
             })
             this.subscriptions.push(subscribe)
         })

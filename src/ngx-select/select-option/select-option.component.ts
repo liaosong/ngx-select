@@ -14,11 +14,10 @@ export class SelectOptionComponent implements OnInit {
     @Output() select$ = new EventEmitter<SelectOptionComponent>()
     @Input() text: string
     @Input() value: any
-    constructor() {
-    }
-
     @HostBinding('class.active') isActive = false
 
+    constructor() {
+    }
 
     @HostListener('click')
     optionClicked() {

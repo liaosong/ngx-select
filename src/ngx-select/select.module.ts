@@ -21,5 +21,5 @@ import { SelectFilterPipe } from './select.pipe'
         SelectFilterPipe,
     ]
 })
-export class SelectModule {
+export class NgxSelectModule {
 }
