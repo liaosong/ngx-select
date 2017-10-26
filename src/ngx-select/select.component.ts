@@ -1,5 +1,6 @@
 import {
-    AfterViewInit, Component, ContentChildren, EventEmitter, Inject, OnDestroy, Optional, Output,
+    AfterViewInit, ChangeDetectorRef, Component, ContentChildren, EventEmitter, Inject, OnDestroy, Optional,
+    Output,
     QueryList
 } from '@angular/core'
 import { SelectOptionComponent } from './select-option/select-option.component'
@@ -7,8 +8,8 @@ import { Subscription } from 'rxjs/Subscription'
 import { DOCUMENT } from '@angular/common'
 import { ControlValueAccessor, NgControl } from '@angular/forms'
 
-function isUndefined(value) {
-    return value === undefined
+function isValidValue(value) {
+    return value !== undefined && value !== null
 }
 
 @Component({
@@ -21,16 +22,20 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
     public text = ''
     @ContentChildren(SelectOptionComponent) selectOptions: QueryList<SelectOptionComponent>
     @Output() change = new EventEmitter()
+    @Output() onInit = new EventEmitter()
     private subscriptions: Subscription[] = []
+    private optionChangeSub: Subscription
     private handler: Function
     private actived: SelectOptionComponent
     private searchState = {
         on: false,
         text: ''
     }
+    private outerValue
     constructor(
         @Inject(DOCUMENT) private document: any,
         @Optional() public _control: NgControl,
+        private cdRef: ChangeDetectorRef
     ) {
         if (this._control) {
             this._control.valueAccessor = this
@@ -42,7 +47,7 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
 
     ngAfterViewInit() {
         this.addWatchOptionSelect()
-        this.selectOptions.changes.subscribe((res) => {
+        this.optionChangeSub = this.selectOptions.changes.subscribe((res) => {
             this.addWatchOptionSelect()
         })
         this.addDocumentClick()
@@ -51,20 +56,19 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
     ngOnDestroy() {
         this.subscriptions.forEach((subscription) => subscription.unsubscribe())
         this.removeDocumentClick()
+        this.optionChangeSub.unsubscribe()
+        this.change.complete()
     }
 
     writeValue(value) {
-        if (this.selectOptions && this.selectOptions.length > 0) {
-            const actived = this.selectOptions.find((item) => {
-                const selectValue = isUndefined(item.value) ? item.text : item.value
-
-                return selectValue === value
-            })
-            if (actived) {
-                actived.setActive()
-                this.actived = actived
-                this.text = this.actived.text
-            }
+        this.outerValue = value
+        const actived = this.resolveValue()
+        if (actived) {
+            this.actived.setActive()
+        }
+        if (isValidValue(value)) {
+            this.onInit.emit(value)
+            this.onInit.complete()
         }
     }
 
@@ -145,10 +149,28 @@ export class NbSelectComponent implements AfterViewInit, OnDestroy, ControlValue
                 this.close()
                 this.actived = selected
                 this.text = selected.text
-                const value = isUndefined(selected.value) ? selected.text : selected.value
+                const value = isValidValue(selected.value) ? selected.value : selected.text
                 this.preChange(value)
             })
             this.subscriptions.push(subscribe)
         })
+        this.resolveValue()
+    }
+
+    private resolveValue() {
+        if (this.selectOptions && this.selectOptions.length > 0) {
+            const actived = this.selectOptions.find((item) => {
+                const selectValue = isValidValue(item.value) ? item.value : item.text
+
+                return selectValue === this.outerValue
+            })
+            if (actived) {
+                this.actived = actived
+                this.text = this.actived.text
+                this.cdRef.detectChanges()
+
+                return this.actived
+            }
+        }
     }
 }
